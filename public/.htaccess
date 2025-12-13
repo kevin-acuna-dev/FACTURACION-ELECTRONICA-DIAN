@@ -1,0 +1,10 @@
+RewriteEngine On
+RewriteBase /facturacion-electronica/public/
+
+# Si el archivo o directorio existe, servirlo directamente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirigir todo lo demás al index.php
+RewriteRule ^(.*)$ ../index.php [QSA,L]
+

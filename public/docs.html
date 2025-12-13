@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentación - Sistema de Facturación Electrónica DIAN</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        .endpoint {
+            background: #0f172a;
+            border-left: 4px solid #3b82f6;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 4px;
+        }
+        .endpoint.get { border-left-color: #10b981; }
+        .endpoint.post { border-left-color: #3b82f6; }
+        .endpoint.put { border-left-color: #f59e0b; }
+        .endpoint.delete { border-left-color: #ef4444; }
+        .nav-link {
+            transition: all 0.2s;
+        }
+        .nav-link:hover {
+            background: #1e293b;
+            transform: translateX(4px);
+        }
+        .nav-link.active {
+            background: #1e293b;
+            border-left: 3px solid #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-gray-800 border-r border-gray-700 fixed h-screen overflow-y-auto">
+            <div class="p-6">
+                <h1 class="text-xl font-bold text-white mb-6">
+                    <i class="fas fa-book text-blue-400 mr-2"></i>
+                    Documentación
+                </h1>
+                <nav class="space-y-1">
+                    <a href="#introduccion" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-home w-5"></i> Introducción
+                    </a>
+                    <a href="#instalacion" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-download w-5"></i> Instalación
+                    </a>
+                    <a href="#estructura" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-folder-tree w-5"></i> Estructura
+                    </a>
+                    <a href="#api" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-code w-5"></i> API Endpoints
+                    </a>
+                    <a href="#autenticacion" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-key w-5"></i> Autenticación
+                    </a>
+                    <a href="#facturas" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-file-invoice w-5"></i> Facturas
+                    </a>
+                    <a href="#productos" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-box w-5"></i> Productos/Servicios
+                    </a>
+                    <a href="#webhooks" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-webhook w-5"></i> Webhooks
+                    </a>
+                    <a href="#plantillas" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-file-alt w-5"></i> Plantillas
+                    </a>
+                    <a href="#validacion" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-check-circle w-5"></i> Validación XSD
+                    </a>
+                    <a href="#dian" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-building w-5"></i> Integración DIAN
+                    </a>
+                    <a href="#impuestos" class="nav-link block px-4 py-2 rounded text-gray-300 hover:text-white">
+                        <i class="fas fa-calculator w-5"></i> Cálculo Impuestos
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <main class="flex-1 ml-64 p-8">
+            <div class="max-w-4xl mx-auto">
+                <section id="introduccion" class="mb-12">
+                    <h1 class="text-4xl font-bold mb-4">
+                        <i class="fas fa-file-invoice-dollar text-blue-400 mr-3"></i>
+                        Sistema de Facturación Electrónica DIAN
+                    </h1>
+                    <p class="text-xl text-gray-300 mb-6">
+                        Sistema completo de facturación electrónica desarrollado en PHP vanilla, cumpliendo con los lineamientos y estándares de la DIAN de Colombia.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                            <i class="fas fa-check-circle text-green-400 text-3xl mb-3"></i>
+                            <h3 class="font-semibold mb-2">UBL 2.1</h3>
+                            <p class="text-gray-400 text-sm">Cumplimiento total con estándares UBL 2.1</p>
+                        </div>
+                        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                            <i class="fas fa-shield-alt text-blue-400 text-3xl mb-3"></i>
+                            <h3 class="font-semibold mb-2">Firma Digital</h3>
+                            <p class="text-gray-400 text-sm">Firma digital XML-DSig integrada</p>
+                        </div>
+                        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                            <i class="fas fa-sync-alt text-purple-400 text-3xl mb-3"></i>
+                            <h3 class="font-semibold mb-2">Validación XSD</h3>
+                            <p class="text-gray-400 text-sm">Validación automática de esquemas</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="instalacion" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">
+                        <i class="fas fa-download text-blue-400 mr-2"></i>
+                        Instalación
+                    </h2>
+                    
+                    <div class="bg-gray-800 p-6 rounded-lg mb-6">
+                        <h3 class="text-xl font-semibold mb-4">Requisitos del Sistema</h3>
+                        <ul class="space-y-2 text-gray-300">
+                            <li><i class="fas fa-check text-green-400 mr-2"></i> PHP 7.4 o superior</li>
+                            <li><i class="fas fa-check text-green-400 mr-2"></i> MySQL 5.7+ o MariaDB 10.3+</li>
+                            <li><i class="fas fa-check text-green-400 mr-2"></i> Apache con mod_rewrite o servidor PHP integrado</li>
+                            <li><i class="fas fa-check text-green-400 mr-2"></i> Extensiones: PDO, PDO_MySQL, JSON, mbstring, OpenSSL, libxml, cURL</li>
+                        </ul>
+                    </div>
+
+                    <h3 class="text-xl font-semibold mb-3">1. Configurar Base de Datos</h3>
+                    <p class="text-gray-300 mb-4">Editar <code>config/database.php</code> con las credenciales:</p>
+                    <pre><code>return [
+    'host' => 'localhost',
+    'database' => 'facturacion_electronica',
+    'username' => 'usuario',
+    'password' => 'contraseña',
+    'charset' => 'utf8mb4'
+];</code></pre>
+
+                    <h3 class="text-xl font-semibold mb-3 mt-6">2. Crear Base de Datos</h3>
+                    <pre><code>mysql -u usuario -p < database.sql</code></pre>
+                    <p class="text-gray-300 mt-2">O usar el script de instalación:</p>
+                    <pre><code>php install.php</code></pre>
+
+                    <h3 class="text-xl font-semibold mb-3 mt-6">3. Iniciar Servidor</h3>
+                    <pre><code>php -S localhost:8000 -t .</code></pre>
+                </section>
+
+                <section id="estructura" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">
+                        <i class="fas fa-folder-tree text-blue-400 mr-2"></i>
+                        Estructura del Proyecto
+                    </h2>
+                    <pre><code>/
+├── config/              # Configuraciones
+│   ├── database.php
+│   └── dian.php
+├── core/                # Núcleo del sistema
+│   ├── Database.php
+│   ├── Model.php
+│   ├── Router.php
+│   ├── Response.php
+│   └── Auth.php
+├── models/              # Modelos de datos
+├── controllers/         # Controladores API
+├── services/            # Servicios de negocio
+├── middleware/          # Middleware
+├── templates/           # Plantillas HTML
+├── public/              # Archivos públicos
+│   ├── index.html
+│   ├── js/
+│   └── docs.html
+└── index.php            # Punto de entrada</code></pre>
+                </section>
+
+                <section id="api" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">
+                        <i class="fas fa-code text-blue-400 mr-2"></i>
+                        API Endpoints
+                    </h2>
+                    <p class="text-gray-300 mb-6">Todos los endpoints devuelven JSON. La mayoría requieren autenticación Bearer token.</p>
+                </section>
+
+                <section id="autenticacion" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">
+                        <i class="fas fa-key text-blue-400 mr-2"></i>
+                        Autenticación
+                    </h2>
+                    
+                    <div class="endpoint post">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">POST</span>
+                            <code class="text-lg">/api/register</code>
+                        </div>
+                        <p class="text-gray-300 mb-3">Registro de empresa y usuario administrador</p>
+                        <pre class="mt-3"><code>{
+  "company": {
+    "business_name": "Empresa S.A.S",
+    "nit": "900123456-7",
+    "tax_regime": "Común",
+    "ciiu_code": "6201"
+  },
+  "user": {
+    "first_name": "Juan",
+    "email": "admin@empresa.com",
+    "password": "contraseña",
+    "document_type": "CC",
+    "document_number": "1234567890"
+  }
+}</code></pre>
+                    </div>
+
+                    <div class="endpoint post">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">POST</span>
+                            <code class="text-lg">/api/login</code>
+                        </div>
+                        <p class="text-gray-300 mb-3">Inicio de sesión. Devuelve token Bearer</p>
+                        <pre class="mt-3"><code>{
+  "email": "admin@empresa.com",
+  "password": "contraseña"
+}</code></pre>
+                        <p class="text-gray-400 text-sm mt-3">Respuesta:</p>
+                        <pre class="mt-2"><code>{
+  "success": true,
+  "data": {
+    "token": "bearer_token_aqui",
+    "user": { ... }
+  }
+}</code></pre>
+                    </div>
+
+                    <div class="endpoint get">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">GET</span>
+                            <code class="text-lg">/api/me</code>
+                        </div>
+                        <p class="text-gray-300">Obtener información del usuario autenticado</p>
+                        <p class="text-gray-400 text-sm mt-2">Requiere: Header <code>Authorization: Bearer {token}</code></p>
+                    </div>
+                </section>
+
+                <section id="facturas" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">
+                        <i class="fas fa-file-invoice text-blue-400 mr-2"></i>
+                        Facturas Electrónicas
+                    </h2>
+
+                    <div class="endpoint get">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">GET</span>
+                            <code class="text-lg">/api/invoices</code>
+                        </div>
+                        <p class="text-gray-300">Listar todas las facturas de la empresa</p>
+                        <p class="text-gray-400 text-sm mt-2">Query params: <code>?dian_status=accepted&date_from=2024-01-01</code></p>
+                    </div>
+
+                    <div class="endpoint post">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">POST</span>
+                            <code class="text-lg">/api/invoices</code>
+                        </div>
+                        <p class="text-gray-300 mb-3">Crear nueva factura electrónica</p>
+                        <pre class="mt-3"><code>{
+  "user_id": 1,
+  "buyer_id": 2,
+  "items": [
+    {
+      "item_type": "product",
+      "item_id": 1,
+      "quantity": 2,
+      "unit_price": 10000,
+      "discount_amount": 0
+    }
+  ],
+  "observation": "Factura de prueba",
+  "document_currency_code": "COP"
+}</code></pre>
+                    </div>
+
+                    <div class="endpoint post">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">POST</span>
+                            <code class="text-lg">/api/invoices/{id}/send-dian</code>
+                        </div>
+                        <p class="text-gray-300">Enviar factura a DIAN para validación</p>
+                        <p class="text-gray-400 text-sm mt-2">Genera XML, firma digital, valida XSD y envía a DIAN</p>
+                    </div>
+
+                    <div class="endpoint get">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">GET</span>
+                            <code class="text-lg">/api/invoices/{id}/status</code>
+                        </div>
+                        <p class="text-gray-300">Consultar estado de la factura en DIAN</p>
+                    </div>
+
+                    <div class="endpoint get">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">GET</span>
+                            <code class="text-lg">/api/invoices/{id}/download/xml</code>
+                        </div>
+                        <p class="text-gray-300">Descargar XML de la factura</p>
+                    </div>
+
+                    <div class="endpoint get">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">GET</span>
+                            <code class="text-lg">/api/invoices/stats/summary</code>
+                        </div>
+                        <p class="text-gray-300">Obtener estadísticas de facturas</p>
+                    </div>
+                </section>
+
+                <section id="productos" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">
+                        <i class="fas fa-box text-blue-400 mr-2"></i>
+                        Productos y Servicios
+                    </h2>
+
+                    <div class="endpoint get">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">GET</span>
+                            <code class="text-lg">/api/products</code>
+                        </div>
+                        <p class="text-gray-300">Listar productos</p>
+                    </div>
+
+                    <div class="endpoint post">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">POST</span>
+                            <code class="text-lg">/api/products</code>
+                        </div>
+                        <p class="text-gray-300 mb-3">Crear producto</p>
+                        <pre class="mt-3"><code>{
+  "product_code": "PROD-001",
+  "name": "Producto Ejemplo",
+  "description": "Descripción del producto",
+  "unit_price": 10000,
+  "measurement_unit_id": 1,
+  "tax_ids": [1]
+}</code></pre>
+                    </div>
+
+                    <div class="endpoint get">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-green-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">GET</span>
+                            <code class="text-lg">/api/services</code>
+                        </div>
+                        <p class="text-gray-300">Listar servicios (misma estructura que productos)</p>
+                    </div>
+                </section>
+
+                <section id="webhooks" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">
+                        <i class="fas fa-webhook text-blue-400 mr-2"></i>
+                        Sistema de Webhooks
+                    </h2>
+                    <p class="text-gray-300 mb-6">Notificaciones HTTP POST automáticas para eventos del sistema.</p>
+
+                    <h3 class="text-xl font-semibold mb-3">Eventos Disponibles</h3>
+                    <ul class="space-y-2 text-gray-300 mb-6">
+                        <li><i class="fas fa-circle text-green-400 mr-2 text-xs"></i> <code>invoice.created</code> - Factura creada</li>
+                        <li><i class="fas fa-circle text-green-400 mr-2 text-xs"></i> <code>invoice.accepted</code> - Factura aceptada por DIAN</li>
+                        <li><i class="fas fa-circle text-red-400 mr-2 text-xs"></i> <code>invoice.rejected</code> - Factura rechazada</li>
+                        <li><i class="fas fa-circle text-yellow-400 mr-2 text-xs"></i> <code>invoice.cancelled</code> - Factura cancelada</li>
+                        <li><i class="fas fa-circle text-orange-400 mr-2 text-xs"></i> <code>certificate.expiring</code> - Certificado próximo a vencer</li>
+                        <li><i class="fas fa-circle text-red-400 mr-2 text-xs"></i> <code>certificate.expired</code> - Certificado vencido</li>
+                    </ul>
+
+                    <div class="endpoint post">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">POST</span>
+                            <code class="text-lg">/api/webhooks</code>
+                        </div>
+                        <p class="text-gray-300 mb-3">Crear webhook</p>
+                        <pre class="mt-3"><code>{
+  "event_type": "invoice.accepted",
+  "url": "https://mi-sistema.com/webhook",
+  "secret": "mi-secreto-opcional",
+  "headers": {
+    "Authorization": "Bearer token"
+  }
+}</code></pre>
+                    </div>
+
+                    <div class="bg-gray-800 p-6 rounded-lg mt-4">
+                        <h4 class="font-semibold mb-2">Estructura del Payload</h4>
+                        <pre><code>{
+  "event": "invoice.accepted",
+  "timestamp": "2024-12-13 20:00:00",
+  "data": {
+    "invoice_id": 123,
+    "invoice_number": "FAC-1-8",
+    "cufe": "...",
+    "status": "accepted"
+  }
+}</code></pre>
+                        <p class="text-gray-400 text-sm mt-3">Headers enviados:</p>
+                        <ul class="text-gray-300 text-sm mt-2 space-y-1">
+                            <li><code>Content-Type: application/json</code></li>
+                            <li><code>X-Webhook-Event: {event}</code></li>
+                            <li><code>X-Webhook-Signature: {hmac_sha256}</code></li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="plantillas" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">
+                        <i class="fas fa-file-alt text-blue-400 mr-2"></i>
+                        Sistema de Plantillas
+                    </h2>
+                    <p class="text-gray-300 mb-6">Plantillas HTML personalizables para facturas con variables dinámicas.</p>
+
+                    <h3 class="text-xl font-semibold mb-3">Variables Disponibles</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-800 p-4 rounded">
+                            <h4 class="font-semibold mb-2">Factura</h4>
+                            <code>{{INVOICE.NUMBER}}</code><br>
+                            <code>{{INVOICE.DATE}}</code><br>
+                            <code>{{INVOICE.CUFE}}</code><br>
+                            <code>{{INVOICE.PROTOCOL_NUMBER}}</code>
+                        </div>
+                        <div class="bg-gray-800 p-4 rounded">
+                            <h4 class="font-semibold mb-2">Empresa</h4>
+                            <code>{{COMPANY.NAME}}</code><br>
+                            <code>{{COMPANY.NIT}}</code><br>
+                            <code>{{COMPANY.ADDRESS}}</code>
+                        </div>
+                    </div>
+
+                    <div class="endpoint post">
+                        <div class="flex items-center mb-2">
+                            <span class="bg-blue-600 text-white px-2 py-1 rounded text-sm font-mono mr-3">POST</span>
+                            <code class="text-lg">/api/templates</code>
+                        </div>
+                        <p class="text-gray-300 mb-3">Crear plantilla personalizada</p>
+                        <pre class="mt-3"><code>{
+  "name": "Plantilla Moderna",
+  "description": "Diseño profesional",
+  "html_content": "<!DOCTYPE html>...",
+  "css_content": "body { font-family: Arial; }",
+  "is_default": true
+}</code></pre>
+                    </div>
+                </section>
+
+                <section id="validacion" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">
+                        <i class="fas fa-check-circle text-blue-400 mr-2"></i>
+                        Validación XSD
+                    </h2>
+                    <p class="text-gray-300 mb-6">
+                        El sistema valida automáticamente todos los documentos XML contra los esquemas XSD oficiales de UBL 2.1 antes de enviarlos a DIAN.
+                    </p>
+                    <div class="bg-gray-800 p-6 rounded-lg">
+                        <h3 class="font-semibold mb-3">Proceso de Validación</h3>
+                        <ol class="space-y-2 text-gray-300">
+                            <li><i class="fas fa-arrow-right text-blue-400 mr-2"></i> Generación del XML UBL 2.1</li>
+                            <li><i class="fas fa-arrow-right text-blue-400 mr-2"></i> Validación estructural básica</li>
+                            <li><i class="fas fa-arrow-right text-blue-400 mr-2"></i> Validación contra esquema XSD</li>
+                            <li><i class="fas fa-arrow-right text-blue-400 mr-2"></i> Detección de errores y advertencias</li>
+                            <li><i class="fas fa-arrow-right text-blue-400 mr-2"></i> Bloqueo de envío si hay errores</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <section id="dian" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">
+                        <i class="fas fa-building text-blue-400 mr-2"></i>
+                        Integración con DIAN
+                    </h2>
+                    <p class="text-gray-300 mb-6">
+                        El sistema soporta dos modos de operación: simulador (sandbox) y producción real.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                            <h3 class="font-semibold mb-3">
+                                <i class="fas fa-flask text-yellow-400 mr-2"></i>
+                                Modo Simulador
+                            </h3>
+                            <p class="text-gray-300 text-sm mb-3">Ideal para desarrollo y pruebas. No requiere certificados reales.</p>
+                            <code class="text-xs">USE_REAL_DIAN = false</code>
+                        </div>
+                        <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                            <h3 class="font-semibold mb-3">
+                                <i class="fas fa-server text-green-400 mr-2"></i>
+                                Modo Producción
+                            </h3>
+                            <p class="text-gray-300 text-sm mb-3">Conexión real con API DIAN. Requiere certificado digital .p12</p>
+                            <code class="text-xs">USE_REAL_DIAN = true</code>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-semibold mb-3">Configuración</h3>
+                    <p class="text-gray-300 mb-3">Editar <code>config/dian.php</code>:</p>
+                    <pre><code>define('USE_REAL_DIAN', true);
+define('DIAN_ENVIRONMENT', 'HABILITACION');
+define('DIAN_CERTIFICATE_PATH', '/ruta/certificado.p12');
+define('DIAN_CERTIFICATE_PASSWORD', 'contraseña');
+define('DIAN_USERNAME', 'usuario_dian');
+define('DIAN_PASSWORD', 'contraseña_dian');</code></pre>
+                </section>
+
+                <section id="impuestos" class="mb-12">
+                    <h2 class="text-3xl font-bold mb-4">
+                        <i class="fas fa-calculator text-blue-400 mr-2"></i>
+                        Cálculo de Impuestos
+                    </h2>
+                    <p class="text-gray-300 mb-6">
+                        El sistema calcula automáticamente los impuestos según múltiples factores.
+                    </p>
+
+                    <div class="bg-gray-800 p-6 rounded-lg mb-6">
+                        <h3 class="font-semibold mb-4">Factores de Cálculo</h3>
+                        <ul class="space-y-3 text-gray-300">
+                            <li>
+                                <i class="fas fa-building text-blue-400 mr-2"></i>
+                                <strong>Régimen Tributario:</strong> Simplificado, Común, Gran Contribuyente, Especial, No Responsable
+                            </li>
+                            <li>
+                                <i class="fas fa-user-tag text-green-400 mr-2"></i>
+                                <strong>Tipo de Comprador:</strong> Persona Natural, Jurídica, No Responsable
+                            </li>
+                            <li>
+                                <i class="fas fa-industry text-purple-400 mr-2"></i>
+                                <strong>Sector Económico:</strong> Código CIIU determina reglas especiales
+                            </li>
+                            <li>
+                                <i class="fas fa-file-export text-orange-400 mr-2"></i>
+                                <strong>Tipo de Factura:</strong> Exportación no aplica IVA
+                            </li>
+                            <li>
+                                <i class="fas fa-tags text-red-400 mr-2"></i>
+                                <strong>Impuestos del Producto/Servicio:</strong> IVA, Retenciones configuradas
+                            </li>
+                        </ul>
+                    </div>
+
+                    <h3 class="text-xl font-semibold mb-3">Tipos de Documento por Sector</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full bg-gray-800 rounded-lg">
+                            <thead>
+                                <tr class="border-b border-gray-700">
+                                    <th class="px-4 py-3 text-left">Sector CIIU</th>
+                                    <th class="px-4 py-3 text-left">Tipo de Documento</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-300">
+                                <tr class="border-b border-gray-700">
+                                    <td class="px-4 py-3">47 - Comercio al por Menor</td>
+                                    <td class="px-4 py-3">Tiquete POS</td>
+                                </tr>
+                                <tr class="border-b border-gray-700">
+                                    <td class="px-4 py-3">56 - Restaurantes</td>
+                                    <td class="px-4 py-3">Tiquete de Alimentos</td>
+                                </tr>
+                                <tr class="border-b border-gray-700">
+                                    <td class="px-4 py-3">49-51 - Transporte</td>
+                                    <td class="px-4 py-3">Documento Equivalente de Transporte</td>
+                                </tr>
+                                <tr class="border-b border-gray-700">
+                                    <td class="px-4 py-3">35-37 - Servicios Públicos</td>
+                                    <td class="px-4 py-3">Documento Equivalente de Servicios</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3">Otros</td>
+                                    <td class="px-4 py-3">Factura Electrónica de Venta</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <footer class="mt-12 pt-8 border-t border-gray-700 text-center text-gray-400">
+                    <p>Sistema de Facturación Electrónica DIAN - Documentación Completa</p>
+                    <p class="text-sm mt-2">Versión 1.0 - Todos los derechos reservados</p>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${id}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, { rootMargin: '-20% 0px -70% 0px' });
+
+        document.querySelectorAll('section[id]').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
+

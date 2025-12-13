@@ -1,0 +1,47 @@
+# Archivos de configuración local
+config/database.local.php
+config/dian.local.php
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+dian_logs/
+
+# Archivos temporales
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Certificados y claves
+*.p12
+*.pem
+*.key
+*.crt
+certs/
+certificates/
+
+# Esquemas XSD descargados (opcional, descomentar si no quieres subirlos)
+# schemas/xsd/*.xsd
+
+# Archivos de prueba
+test_output/
+test_results/
+
+# Archivos de usuario
+a.txt
+

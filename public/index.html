@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturación Electrónica DIAN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        body {
+            background: #f8fafc;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .smooth-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1e40af',
+                        secondary: '#1e3a8a',
+                        accent: '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100">
+    <div id="app" class="min-h-screen">
+        <!-- Login Screen -->
+        <div id="login-screen" class="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+            <div class="absolute inset-0 bg-grid-pattern opacity-5"></div>
+            <div class="relative z-10 w-full max-w-md px-6">
+                <div class="glass-effect rounded-2xl shadow-2xl p-10 border border-gray-200/20">
+                    <div class="text-center mb-10">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl mb-6 shadow-lg">
+                            <i class="fas fa-file-invoice text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-900 mb-2 tracking-tight">Facturación Electrónica</h1>
+                        <p class="text-gray-600 text-sm font-medium">Sistema de Facturación DIAN</p>
+                    </div>
+                    <form id="login-form" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-envelope mr-2 text-gray-400"></i>Email
+                            </label>
+                            <input type="email" id="login-email" required 
+                                   placeholder="correo@ejemplo.com"
+                                   class="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-400">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                <i class="fas fa-lock mr-2 text-gray-400"></i>Contraseña
+                            </label>
+                            <input type="password" id="login-password" required 
+                                   placeholder="••••••••"
+                                   class="w-full px-4 py-3.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white text-gray-900 placeholder-gray-400">
+                        </div>
+                        <button type="submit" 
+                                class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3.5 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Iniciar Sesión
+                        </button>
+                    </form>
+                    <div id="login-error" class="mt-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg text-red-700 text-sm hidden">
+                        <i class="fas fa-exclamation-circle mr-2"></i><span></span>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                        <p class="text-xs text-gray-500 mb-2">Credenciales de prueba</p>
+                        <div class="bg-gray-50 rounded-lg p-3 font-mono text-xs text-gray-700">
+                            admin@test.com / password
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="main-app" class="hidden bg-gray-50 min-h-screen">
+            <!-- Navbar -->
+            <nav class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between items-center h-16">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-2.5 rounded-lg shadow-md">
+                                    <i class="fas fa-file-invoice text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <h1 class="text-lg font-bold text-gray-900">Facturación DIAN</h1>
+                                    <p class="text-xs text-gray-500">Sistema Electrónico</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="hidden md:flex items-center space-x-2 bg-gray-50 px-4 py-2 rounded-lg border border-gray-200">
+                                <i class="fas fa-user-circle text-gray-400"></i>
+                                <span id="user-name" class="text-sm font-medium text-gray-700"></span>
+                            </div>
+                            <button id="logout-btn" class="flex items-center space-x-2 bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 border border-red-200 transition-all duration-200 font-medium text-sm">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span class="hidden sm:inline">Salir</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Dashboard -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <!-- Tabs -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+                    <nav class="flex space-x-1 p-1">
+                        <button id="tab-dashboard" class="tab-button flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold text-blue-600 bg-blue-50 border border-blue-200 transition-all duration-200">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </button>
+                        <button id="tab-invoices" class="tab-button flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200">
+                            <i class="fas fa-file-invoice"></i>
+                            <span>Facturas</span>
+                        </button>
+                        <button id="tab-create" class="tab-button flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg text-sm font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Nueva Factura</span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Dashboard Content -->
+                <div id="dashboard-content" class="tab-content">
+                    <div class="mb-8">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-2">Panel de Control</h2>
+                        <p class="text-gray-600">Resumen general de facturación electrónica DIAN</p>
+                    </div>
+                    
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg card-hover transform hover:scale-105 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="bg-white/20 p-3 rounded-lg">
+                                    <i class="fas fa-file-invoice text-2xl"></i>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xs font-semibold opacity-90 uppercase tracking-wide">Total Facturas</div>
+                                </div>
+                            </div>
+                            <div id="stat-total" class="text-4xl font-bold mb-2">0</div>
+                            <div class="flex items-center text-sm opacity-90">
+                                <i class="fas fa-chart-line mr-2"></i>
+                                <span>Facturas registradas</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg card-hover transform hover:scale-105 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="bg-white/20 p-3 rounded-lg">
+                                    <i class="fas fa-check-circle text-2xl"></i>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xs font-semibold opacity-90 uppercase tracking-wide">Aceptadas</div>
+                                </div>
+                            </div>
+                            <div id="stat-accepted" class="text-4xl font-bold mb-2">0</div>
+                            <div class="flex items-center text-sm opacity-90">
+                                <i class="fas fa-shield-alt mr-2"></i>
+                                <span>Validadas por DIAN</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl p-6 text-white shadow-lg card-hover transform hover:scale-105 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="bg-white/20 p-3 rounded-lg">
+                                    <i class="fas fa-clock text-2xl"></i>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xs font-semibold opacity-90 uppercase tracking-wide">Pendientes</div>
+                                </div>
+                            </div>
+                            <div id="stat-pending" class="text-4xl font-bold mb-2">0</div>
+                            <div class="flex items-center text-sm opacity-90">
+                                <i class="fas fa-hourglass-half mr-2"></i>
+                                <span>En proceso</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-xl p-6 text-white shadow-lg card-hover transform hover:scale-105 transition-all duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="bg-white/20 p-3 rounded-lg">
+                                    <i class="fas fa-times-circle text-2xl"></i>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-xs font-semibold opacity-90 uppercase tracking-wide">Rechazadas</div>
+                                </div>
+                            </div>
+                            <div id="stat-rejected" class="text-4xl font-bold mb-2">0</div>
+                            <div class="flex items-center text-sm opacity-90">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                <span>Requieren atención</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Stats -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <!-- Status Distribution -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
+                                <i class="fas fa-chart-pie text-blue-600"></i>
+                                <span>Distribución por Estado</span>
+                            </h3>
+                            <div id="status-chart" class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-4 h-4 bg-green-500 rounded"></div>
+                                        <span class="text-sm font-medium text-gray-700">Aceptadas</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span id="stat-accepted-percent" class="text-sm font-bold text-gray-900">0%</span>
+                                        <span id="stat-accepted-bar" class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                            <div class="h-full bg-green-500 transition-all duration-500" style="width: 0%"></div>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-4 h-4 bg-yellow-500 rounded"></div>
+                                        <span class="text-sm font-medium text-gray-700">Pendientes</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span id="stat-pending-percent" class="text-sm font-bold text-gray-900">0%</span>
+                                        <span id="stat-pending-bar" class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                            <div class="h-full bg-yellow-500 transition-all duration-500" style="width: 0%"></div>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-4 h-4 bg-red-500 rounded"></div>
+                                        <span class="text-sm font-medium text-gray-700">Rechazadas</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span id="stat-rejected-percent" class="text-sm font-bold text-gray-900">0%</span>
+                                        <span id="stat-rejected-bar" class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                                            <div class="h-full bg-red-500 transition-all duration-500" style="width: 0%"></div>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quick Actions -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
+                                <i class="fas fa-bolt text-yellow-600"></i>
+                                <span>Acciones Rápidas</span>
+                            </h3>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="switchTab('create')" class="flex flex-col items-center justify-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition-all duration-200 group">
+                                    <i class="fas fa-plus-circle text-blue-600 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                                    <span class="text-sm font-semibold text-gray-700">Nueva Factura</span>
+                                </button>
+                                <button onclick="switchTab('invoices')" class="flex flex-col items-center justify-center p-4 bg-green-50 hover:bg-green-100 rounded-lg border border-green-200 transition-all duration-200 group">
+                                    <i class="fas fa-list text-green-600 text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
+                                    <span class="text-sm font-semibold text-gray-700">Ver Facturas</span>
+                                </button>
+                                <button onclick="loadDashboard()" class="flex flex-col items-center justify-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg border border-purple-200 transition-all duration-200 group">
+                                    <i class="fas fa-sync-alt text-purple-600 text-2xl mb-2 group-hover:rotate-180 transition-transform"></i>
+                                    <span class="text-sm font-semibold text-gray-700">Actualizar</span>
+                                </button>
+                                <div class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <i class="fas fa-info-circle text-gray-400 text-2xl mb-2"></i>
+                                    <span class="text-xs text-gray-500 text-center">Sistema en Modo Simulación</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2">
+                            <i class="fas fa-history text-gray-600"></i>
+                            <span>Actividad Reciente</span>
+                        </h3>
+                        <div id="recent-activity" class="space-y-3">
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-inbox text-4xl mb-3 opacity-50"></i>
+                                <p>Cargando actividad reciente...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoices List -->
+                <div id="invoices-content" class="tab-content hidden">
+                    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-3xl font-bold text-gray-900 mb-1">Facturas Electrónicas</h2>
+                            <p class="text-gray-600 text-sm">Gestión completa de facturación electrónica DIAN</p>
+                        </div>
+                        <button onclick="switchTab('create')" class="flex items-center space-x-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                            <i class="fas fa-plus"></i>
+                            <span>Nueva Factura</span>
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-base font-bold text-gray-900 flex items-center space-x-2">
+                                    <i class="fas fa-list text-gray-400"></i>
+                                    <span>Registro de Facturas</span>
+                                </h3>
+                                <div class="flex items-center space-x-2 text-sm text-gray-600 bg-white px-3 py-1.5 rounded-lg border border-gray-200">
+                                    <i class="fas fa-hashtag text-gray-400"></i>
+                                    <span>Total: <span id="invoices-count" class="font-semibold text-gray-900">0</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="invoices-list" class="divide-y divide-gray-100">
+                            <!-- Facturas se cargarán aquí -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Create Invoice -->
+                <div id="create-content" class="tab-content hidden">
+                    <div class="mb-6">
+                        <h2 class="text-3xl font-bold text-gray-900 mb-1">Crear Nueva Factura</h2>
+                        <p class="text-gray-600 text-sm">Complete los datos para generar una factura electrónica válida</p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                        <form id="create-invoice-form" class="space-y-8">
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-start space-x-3">
+                                    <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
+                                    <p class="text-sm text-blue-800">La factura se generará automáticamente según el sector económico (CIIU) de su empresa</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2.5">
+                                        <i class="fas fa-user mr-2 text-gray-400"></i>Cliente <span class="text-red-500">*</span>
+                                    </label>
+                                    <select id="invoice-buyer" required 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white text-gray-900">
+                                        <option value="">Seleccionar cliente...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2.5">
+                                        <i class="fas fa-tag mr-2 text-gray-400"></i>Tipo de Factura
+                                    </label>
+                                    <select id="invoice-type" 
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white text-gray-900">
+                                        <option value="01">Factura de Venta</option>
+                                        <option value="02">Factura de Exportación</option>
+                                        <option value="03">Factura de Contingencia</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-gray-200 pt-6">
+                                <div class="flex justify-between items-center mb-5">
+                                    <label class="block text-sm font-semibold text-gray-700">
+                                        <i class="fas fa-list-ul mr-2 text-gray-400"></i>Items de la Factura <span class="text-red-500">*</span>
+                                    </label>
+                                    <button type="button" id="add-item-btn" 
+                                            class="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md">
+                                        <i class="fas fa-plus text-sm"></i>
+                                        <span>Agregar Item</span>
+                                    </button>
+                                </div>
+                                <div id="invoice-items" class="space-y-4">
+                                    <!-- Items se agregarán dinámicamente -->
+                                </div>
+                            </div>
+                            
+                            <div id="invoice-summary" class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200 hidden">
+                                <h3 class="font-bold text-gray-900 mb-5 flex items-center space-x-2">
+                                    <i class="fas fa-calculator text-gray-400"></i>
+                                    <span>Resumen de la Factura</span>
+                                </h3>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center text-gray-700">
+                                        <span class="font-medium">Subtotal:</span>
+                                        <span id="summary-subtotal" class="font-bold text-gray-900">$0.00</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-gray-700">
+                                        <span class="font-medium">IVA (19%):</span>
+                                        <span id="summary-tax" class="font-bold text-gray-900">$0.00</span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-xl font-bold text-gray-900 pt-4 border-t-2 border-gray-300">
+                                        <span>Total a Pagar:</span>
+                                        <span id="summary-total" class="text-blue-600">$0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+                                <button type="button" id="cancel-invoice-btn" 
+                                        class="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-all duration-200">
+                                    <i class="fas fa-times mr-2"></i>Cancelar
+                                </button>
+                                <button type="submit" 
+                                        class="px-8 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                    <i class="fas fa-check mr-2"></i>Crear Factura
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoice Detail Modal -->
+        <div id="invoice-modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden flex flex-col">
+                <div class="sticky top-0 bg-gradient-to-r from-slate-800 to-slate-900 px-6 py-4 flex justify-between items-center z-10 border-b border-slate-700">
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i class="fas fa-file-invoice"></i>
+                        <span>Factura Electrónica</span>
+                    </h2>
+                    <button id="close-modal" class="text-gray-300 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-all duration-200">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-8">
+                    <div id="invoice-detail-content">
+                        <!-- Contenido de la factura -->
+                    </div>
+                </div>
+                <div class="sticky bottom-0 bg-gray-50 border-t border-gray-200 px-8 py-4 flex flex-wrap justify-end gap-3">
+                    <button id="export-pdf-btn" class="flex items-center space-x-2 bg-red-600 text-white px-5 py-2.5 rounded-lg hover:bg-red-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Exportar PDF</span>
+                    </button>
+                    <button id="export-png-btn" class="flex items-center space-x-2 bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg">
+                        <i class="fas fa-image"></i>
+                        <span>Exportar PNG</span>
+                    </button>
+                    <button id="send-dian-btn" class="flex items-center space-x-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all duration-200 font-semibold shadow-md hover:shadow-lg">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Enviar a DIAN</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-panel" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+        <div class="bg-gray-800 rounded-lg shadow-2xl max-w-md w-full mx-4 border border-gray-700">
+            <div class="flex items-center justify-between p-6 border-b border-gray-700">
+                <h3 id="modal-title" class="text-xl font-semibold text-white flex items-center">
+                    <i id="modal-icon" class="fas fa-info-circle mr-2"></i>
+                    <span id="modal-title-text">Título</span>
+                </h3>
+                <button id="modal-close" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <p id="modal-message" class="text-gray-300 mb-6 whitespace-pre-line"></p>
+                <div id="modal-errors" class="hidden mb-4">
+                    <ul id="modal-errors-list" class="list-disc list-inside text-red-400 text-sm space-y-1"></ul>
+                </div>
+                <div id="modal-content" class="hidden mb-6"></div>
+            </div>
+            <div id="modal-actions" class="hidden flex justify-end gap-3 p-6 border-t border-gray-700">
+                <button id="modal-cancel" class="px-4 py-2 bg-gray-700 text-gray-300 rounded hover:bg-gray-600 transition-colors">
+                    Cancelar
+                </button>
+                <button id="modal-confirm" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+
