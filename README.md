@@ -36,7 +36,7 @@ Sistema completo de facturación electrónica desarrollado en PHP vanilla, cumpl
 ### 1. Clonar o descargar el proyecto
 
 ```bash
-git clone [<repository-url>](https://github.com/kevin-acuna-dev/FACTURACION-ELECTRONICA-DIAN)
+git clone https://github.com/kevin-acuna-dev/FACTURACION-ELECTRONICA-DIAN
 cd facturacion-electronica
 ```
 
@@ -324,10 +324,6 @@ Para documentación detallada, acceder a:
 ```
 http://localhost:8000/docs.html
 ```
-
-## Licencia
-
-Este proyecto es de uso interno. Todos los derechos reservados.
 
 ## Soporte
 
